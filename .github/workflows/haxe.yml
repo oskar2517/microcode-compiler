@@ -1,0 +1,74 @@
+name: mcc
+
+on: [push]
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.2.5
+      - name: Install dependencies
+        run: |
+          haxelib install hxcpp --quiet
+          haxelib install hxargs --quiet
+      - name: Build
+        run: haxe cpp.hxml
+      - name: Rename artifact
+        run: mv cpp/Main cpp/mcc
+      - name: Strip artifact symbols
+        run: strip cpp/mcc
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: mcc-linux
+          path: cpp/mcc
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.2.5
+      - name: Install dependencies
+        run: |
+          haxelib install hxcpp --quiet
+          haxelib install hxargs --quiet
+      - name: Build
+        run: haxe cpp.hxml
+      - name: Rename artifact
+        run: | 
+          cd cpp
+          ren Main.exe mcc.exe
+          cd ..
+      - name: Strip artifact symbols
+        run: strip cpp/mcc.exe
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: mcc-win
+          path: cpp/mcc.exe
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.2.5
+      - name: Install dependencies
+        run: |
+          haxelib install hxcpp --quiet
+          haxelib install hxargs --quiet
+      - name: Build
+        run: haxe cpp.hxml
+      - name: Rename artifact
+        run: mv cpp/Main cpp/mcc
+      - name: Strip artifact symbols
+        run: strip cpp/mcc
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: mcc-macos
+          path: cpp/mcc
