@@ -1,0 +1,62 @@
+0: SUB; // Configures ALU to perform subtraction
+1: LRO; // Loads data on BUS into output register
+2: CPC; // Increments program counter
+3: MCR; // Resets microcode offset
+4: ERAM; // Puts data on address in MAR on BUS
+5: LRAM; // Writes data on BUS at address in MAR in RAM
+6: LM; // Loads memory address from BUS
+7: EPC; // Puts program counter on BUS
+8: LPC; // Loads program counter from BUS
+9: EIR; // Puts data of current instruction on BUS and allows microcode controller to access opcode
+10: LIR; // Loads instruction from BUS
+11: ERT; // Puts data from temp ALU register on internal BUS
+12: ER2; // Puts data in register 2 on BUS
+13: LR2; // Loads data on BUS into register 2
+14: ER1; // Puts data in register 1 on BUS
+15: LR1; // Loads data on BUS into register 1
+
+proc fetch {
+    EPC, LM;
+    ERAM;
+    ERAM, LIR;
+    CPC;
+    EIR;
+}
+
+proc reset {
+    MCR;
+}
+
+ins lda {
+    inline fetch;
+    EIR, LM;
+    ERAM;
+    ERAM, LR1;
+    inline reset;
+}
+
+ins add {
+    inline fetch;
+    EIR, LM;
+    ERAM;
+    ERAM, LR2;
+    ; // calc
+    ERT, LR1;
+    inline reset;
+}
+
+ins sub {
+    inline fetch;
+    EIR, LM;
+    ERAM;
+    ERAM, LR2;
+    SUB; // calc
+    ERT, LR1;
+    inline reset;
+}
+
+ins mao {
+    inline fetch;
+    ER1, LRO;
+    inline reset;
+}
