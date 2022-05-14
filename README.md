@@ -1,12 +1,64 @@
 # Microcode Compiler
-Compiler for a custom microcode description format I created to make developing microcode for my CPU simulation project more enjoyable.
+Compiler for a custom microcode description format I created to make developing microcode for my CPU simulation project more enjoyable. It emits a RAM dump in the `v3.0 hex words plain` format used by [Logisim Evolution](https://github.com/logisim-evolution/logisim-evolution).
 
 ## Features
 - Define aliases for signals
 - Create procedures to reuse code
 
 ## Example
-Examples can be found [here](examples). Alternatively, have a look at the syntax description below.
+Microcode for an extremely rudimentary CPU. 
+```
+0: CPC; // Increments program counter
+1: MCR; // Resets microcode offset
+2: ERAM; // Puts data on address in MAR on BUS
+3: LM; // Loads memory address from BUS
+4: EPC; // Puts program counter on BUS
+5: EIR; // Puts data of current instruction on BUS and allows microcode controller to access opcode
+6: LIR; // Loads instruction from BUS
+7: ERT; // Puts data from temp ALU register on internal BUS
+8: LR2; // Loads data on BUS into register 2
+9: LR1; // Loads data on BUS into register 1
+
+proc fetch {
+    EPC, LM;
+    ERAM;
+    ERAM, LIR;
+    CPC;
+    EIR;
+}
+
+proc reset {
+    MCR;
+}
+
+ins lda {
+    inline fetch;
+    EIR, LM;
+    ERAM;
+    ERAM, LR1;
+    inline reset;
+}
+
+ins add {
+    inline fetch;
+    EIR, LM;
+    ERAM;
+    ERAM, LR2;
+    ; // calc
+    ERT, LR1;
+    inline reset;
+}
+```
+
+Generated binary code:
+```
+v3.0 hex words plain
+0018 0004 0044 0001 0020 0028 0004 0204 0002 0000 0000 0000 0000 0000 0000 0000
+0018 0004 0044 0001 0020 0028 0004 0104 0000 0280 0002 0000 0000 0000 0000 0000
+```
+
+
+More examples can be found [here](examples). Alternatively, have a look at the syntax description below.
 
 ## Download
 The latest release can be downloaded fom the [releases tab](https://github.com/oskar2517/microcode-compiler/releases). Alteratively, binaries compiled from the most reason commit can be downloaded from the [actions tab](https://github.com/oskar2517/microcode-compiler/actions). 
@@ -22,106 +74,4 @@ Options:
 ```
 
 ## Syntax
-### General definitions
-```ebnf
-Letter = "a" | ... | "z" | "A" | ... | "Z";
-Number = "0" | "1" | "2" | "4" | "5" | "6" | "7" | "8" | "9";
-```
-
-### Comments
-Comments will be ignored by the compiler.
-```ebnf
-Comment ::= "//", { . }, NewLine
-```
-
-Examples:
-```
-// This is a comment
-```
-
-### Identifiers
-An identifier is a name assigned to an element in a program. It has to start with either a letter or an underscore followed by an arbitrary amount of alphanumeric characrer
-```ebnf
-Identifier = ( Letter | "_" ) { ( Letter | Number | "_" ) };
-```
-Examples of valid identifiers are `myVariable`, `TeSt123`, `_2ident`, and `x`. An example of an invalid identifier is `0test`.
-
-### Signal declaration
-Signals are represented by a single bit each. To make referencing them easier, aliases can be declared.
-```ebnf
-SignalDefinition ::= Number,  ":", Identifier; 
-```
-
-Examples:
-```
-0: SUB;
-1: ERAM;
-2: LRAM;
-```
-
-### Blocks
-Blocks encapsulate zero or more statements.
-```ebnf
-Block ::= "{", { Statement }, "}";
-```
-
-Examples:
-```
-{
-    SUB;
-    ERAM, LR0;
-    ;
-}
-```
-
-### Statements
-Statements are made up off signals. Each clock, one statement is executed.
-```ebnf
-Statement ::= [ Identifier, { ",", Identifier } ] ";";
-```
-
-Examples:
-```
-SUB;
-ERAM, LR0;
-;
-```
-
-### Procedure
-Procedures can be inlined elsewhere allowing code to be reused.
-```ebnf
-Procedure ::= "proc", Identifier, Block;
-```
-
-Examples:
-```
-proc reset {
-    MCR;
-}
-```
-
-### Inlining
-Procedures can be inlined using the `inline` directive.
-```
-Inline ::= "inline", Identifier;
-```
-
-Examples:
-```
-inline fetch;
-```
-
-### Instruction
-Instructions will be emitted in the output file. Each instruction is made up off zero or more statements.
-```ebnf
-Instruction ::= "ins", Identifier, Block;
-```
-
-Examples:
-```
-ins mao {
-    inline fetch;
-    ER1, LRO;
-    inline reset;
-}
-```
+Please refer to [syntax.md](syntax.md) for a description of the supported syntax.
