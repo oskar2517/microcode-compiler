@@ -132,7 +132,7 @@ class Parser {
             case Number: ast.addSignalDeclaration(parseSignalDeclaration());
             case Proc: ast.addProcDeclaration(parseProcDeclaration());
             case Ins: ast.addMachineInsDeclaration(parseMachineInsDeclaration());
-            default:
+            default: error('Unexpected token type ${currentToken.type}');
         }
     }
 }
