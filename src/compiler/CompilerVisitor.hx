@@ -83,6 +83,10 @@ class CompilerVisitor implements Visitor {
         final instructionBytes = Bytes.alloc(instructionWidth);
 
         for (s in node.signals) {
+            if (!signals.exists(s)) {
+                error('Signal \'$s\' undefined');
+            }
+
             final index = signals.get(s);
 
             final byteIndex = instructionWidth - 1 - Std.int(index / 8);
