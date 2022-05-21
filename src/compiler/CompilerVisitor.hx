@@ -34,15 +34,15 @@ class CompilerVisitor implements Visitor {
         for (bytes in instructions) {
             var byteIndex = 0;
             for (_ in 0...Std.int(Math.pow(2, 4))) {
+                final instruction = Bytes.alloc(instructionWidth);
+
                 if (byteIndex < bytes.length) {
-                    final instruction = Bytes.alloc(instructionWidth);
                     instruction.blit(0, bytes, byteIndex, instructionWidth);
         
-                    buffer.add(instruction.toHex());
                     byteIndex += instructionWidth;
-                } else {
-                    buffer.add("0000");
                 }
+
+                buffer.add(instruction.toHex());
 
                 buffer.add(" ");
             }
