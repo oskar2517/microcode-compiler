@@ -10,120 +10,127 @@ import visitor.Visitor;
 
 class CompilerVisitor implements Visitor {
 
-    final procedures:StringMap<Bytes> = new StringMap();
-    final instructions:Array<Bytes> = [];
-    final signals:StringMap<Int> = new StringMap();
-    var instructionWidth = 0;
-    var bufferOutput:BytesOutput;
-    var currentMachineInsIndex = 0;
+	final procedures:StringMap<Bytes> = new StringMap();
+	final instructions:Array<Bytes> = [];
+	final signals:StringMap<Int> = new StringMap();
+	var instructionWidth = 0;
+	var bufferOutput:BytesOutput;
+	var currentMachineInsIndex = 0;
 
-    public function new() {}
+	public function new() {}
 
-    function binaryExtend(value:Int):Int {
-        final r = value % 8;
-        final e = (r != 0) ? 8 - r : 0;
+	function binaryExtend(value:Int):Int {
+		final r = value % 8;
+		final e = (r != 0) ? 8 - r : 0;
 
-        return Std.int((value + e) / 8);
-    }
+		return Std.int((value + e) / 8);
+	}
 
-    public function saveOutput(path:String) {
-        final buffer = new StringBuf();
+	public function saveOutput(path:String) {
+		final buffer = new StringBuf();
 
-        buffer.add("v3.0 hex words plain\r\n");
+		buffer.add("v3.0 hex words plain\r\n");
 
-        for (bytes in instructions) {
-            var byteIndex = 0;
-            for (_ in 0...Std.int(Math.pow(2, 4))) {
-                final instruction = Bytes.alloc(instructionWidth);
+		for (bytes in instructions) {
+			var byteIndex = 0;
+			for (_ in 0...Std.int(Math.pow(2, 4))) {
+				final instruction = Bytes.alloc(instructionWidth);
 
-                if (byteIndex < bytes.length) {
-                    instruction.blit(0, bytes, byteIndex, instructionWidth);
-        
-                    byteIndex += instructionWidth;
-                }
+				if (byteIndex < bytes.length) {
+					instruction.blit(0, bytes, byteIndex, instructionWidth);
 
-                buffer.add(instruction.toHex());
+					byteIndex += instructionWidth;
+				}
 
-                buffer.add(" ");
-            }
+				buffer.add(instruction.toHex());
 
-            buffer.add("\r\n");
-        }
+				buffer.add(" ");
+			}
 
-        File.saveContent(path, buffer.toString());
-    }
-    
+			buffer.add("\r\n");
+		}
+
+		File.saveContent(path, buffer.toString());
+	}
+
 	public function visitFileNode(node:FileNode) {
-        for (s in node.signalDeclarations) {
-            s.accept(this);
-        }
+		for (s in node.signalDeclarations) {
+			s.accept(this);
+		}
 
-        instructionWidth = binaryExtend(node.signalDeclarations.length);
+		instructionWidth = binaryExtend(node.signalDeclarations.length);
 
-        for (p in node.procDeclarations) {
-            p.accept(this);
-        }
+		for (p in node.procDeclarations) {
+			p.accept(this);
+		}
 
-        for (i in node.machineInsDeclarations) {
-            i.accept(this);
-        }
-    }
+		for (i in node.machineInsDeclarations) {
+			i.accept(this);
+		}
+	}
 
 	public function visitInlineNode(node:InlineNode) {
-        if (!procedures.exists(node.name)) {
-            error('Procedure ${node.name} undefined.');
-        }
+		if (!procedures.exists(node.name)) {
+			error('Procedure ${node.name} undefined.');
+		}
 
-        final procedure = procedures.get(node.name);
+		final procedure = procedures.get(node.name);
 
-        bufferOutput.write(procedure);
-    }
+		bufferOutput.write(procedure);
+	}
 
 	public function visitInstructionNode(node:InstructionNode) {
-        final instructionBytes = Bytes.alloc(instructionWidth);
+		final instructionBytes = Bytes.alloc(instructionWidth);
 
-        for (s in node.signals) {
-            if (!signals.exists(s)) {
-                error('Signal \'$s\' undefined');
-            }
+		for (s in node.signals) {
+			if (!signals.exists(s)) {
+				error('Signal \'$s\' undefined.');
+			}
 
-            final index = signals.get(s);
+			final index = signals.get(s);
 
-            final byteIndex = instructionWidth - 1 - Std.int(index / 8);
-            final byteOffset = index % 8;
+			final byteIndex = instructionWidth - 1 - Std.int(index / 8);
+			final byteOffset = index % 8;
 
-            var currentData = instructionBytes.get(byteIndex);
-            currentData |= 1 << byteOffset;
-            
-            instructionBytes.set(byteIndex, currentData);
-        }
+			var currentData = instructionBytes.get(byteIndex);
+			currentData |= 1 << byteOffset;
 
-        bufferOutput.write(instructionBytes);
-    }
+			instructionBytes.set(byteIndex, currentData);
+		}
+
+		bufferOutput.write(instructionBytes);
+	}
 
 	public function visitMachineInsDeclarationNode(node:MachineInsDeclarationNode) {
-        bufferOutput = new BytesOutput();
-        for (i in node.instructions) {
+		bufferOutput = new BytesOutput();
+		for (i in node.instructions) {
+			i.accept(this);
+		}
 
-            i.accept(this);
+        final bytes = bufferOutput.getBytes();
+        final instructionsCount = bytes.length / instructionWidth;
+        final maxInstructionsCount =  Math.pow(2, 4);
+
+        if (instructionsCount > maxInstructionsCount) {
+            error('Could not compile machine instruction \'${node.name}\'. ${instructionsCount} micro instructions required, ${maxInstructionsCount} available.');
         }
 
-        instructions.push(bufferOutput.getBytes());
+		instructions.push(bytes);
 
-        currentMachineInsIndex++;
-    }
+		currentMachineInsIndex++;
+	}
 
 	public function visitProcDeclarationNode(node:ProcDeclarationNode) {
-        bufferOutput = new BytesOutput();
+		bufferOutput = new BytesOutput();
 
-        for (i in node.instructions) {
-            i.accept(this);
-        }
+		for (i in node.instructions) {
+			i.accept(this);
+		}
 
-        procedures.set(node.name, bufferOutput.getBytes());
-    }
+		procedures.set(node.name, bufferOutput.getBytes());
+	}
 
 	public function visitSignalDeclarationNode(node:SignalDeclarationNode) {
-        signals.set(node.name, node.index);
-    }
+		signals.set(node.name, node.index);
+	}
 }
