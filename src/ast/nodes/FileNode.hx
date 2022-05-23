@@ -3,7 +3,7 @@ package ast.nodes;
 import visitor.Visitor;
 
 class FileNode extends Node {
-
+    
     public final signalDeclarations:Array<SignalDeclarationNode> = [];
     public final procDeclarations:Array<ProcDeclarationNode> = [];
     public final machineInsDeclarations:Array<MachineInsDeclarationNode> = [];
@@ -24,7 +24,7 @@ class FileNode extends Node {
         machineInsDeclarations.push(node);
     }
 
-	public function accept(visitor:Visitor) {
+    public function accept(visitor:Visitor) {
         visitor.visitFileNode(this);
     }
 }

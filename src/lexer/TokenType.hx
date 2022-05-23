@@ -9,7 +9,7 @@ enum TokenType {
     Comma;
     LBrace;
     RBrace;
-
+    
     Proc;
     Ins;
     Inline;

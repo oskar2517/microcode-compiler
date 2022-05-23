@@ -3,7 +3,7 @@ package visitor;
 import ast.nodes.*;
 
 interface Visitor {
-
+    
     function visitFileNode(node:FileNode):Void;
 
     function visitInlineNode(node:InlineNode):Void;

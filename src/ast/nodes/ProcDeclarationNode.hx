@@ -3,7 +3,7 @@ package ast.nodes;
 import visitor.Visitor;
 
 class ProcDeclarationNode extends Node {
-
+    
     public final name:String;
     public final instructions:Array<Node>;
 

@@ -11,8 +11,7 @@ function main() {
         showHelp: false
     };
 
-    final argumentHandler = Args.generate([
-        @doc("Print this message")
+    final argumentHandler = Args.generate([@doc("Print this message")
         ["--help", "-h"] => function() {
             config.showHelp = true;
         },
@@ -39,10 +38,10 @@ function main() {
         final code = File.getContent(config.inputPath);
 
         final lexer = new Lexer(code);
-    
+
         final parser = new Parser(lexer);
         parser.parse();
-    
+
         final compiler = new CompilerVisitor();
         parser.ast.accept(compiler);
         compiler.saveOutput(config.outputPath);

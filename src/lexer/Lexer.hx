@@ -7,7 +7,7 @@ import lexer.LexerHelper.isNumber;
 import lexer.LexerHelper.isAscii;
 
 class Lexer {
-
+    
     private final code:String;
     var currentChar = " ";
     var position = 0;
@@ -65,7 +65,7 @@ class Lexer {
             }
         }
     }
-    
+
     public function tokenize() {
         while (currentChar != "\u{0}") {
             final token = readToken();

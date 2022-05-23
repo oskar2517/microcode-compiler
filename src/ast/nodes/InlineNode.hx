@@ -3,7 +3,7 @@ package ast.nodes;
 import visitor.Visitor;
 
 class InlineNode extends Node {
-
+    
     public final name:String;
 
     public function new(name:String) {
