@@ -1,3 +1,4 @@
+import build.Version.getVersionString;
 import hxargs.Args;
 import compiler.CompilerVisitor;
 import parser.Parser;
@@ -11,9 +12,15 @@ function main() {
         showHelp: false
     };
 
-    final argumentHandler = Args.generate([@doc("Print this message")
+    final argumentHandler = Args.generate([
+        @doc("Print this message")
         ["--help", "-h"] => function() {
             config.showHelp = true;
+        },
+        @doc("Print version info")
+        ["--version", "-v"] => function() {
+            Sys.println(getVersionString());
+            Sys.exit(0);
         },
         @doc("Specify an input file")
         ["--input", "-i"] => function(path) {
