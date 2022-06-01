@@ -19,6 +19,17 @@ class CompilerVisitor implements Visitor {
 
     public function new() {}
 
+    function verifySignalDeclarations(declarations:Array<SignalDeclarationNode>) {
+        final sorted = declarations.map(d -> d.index);
+        sorted.sort((a, b) -> a - b);
+
+        for (i in 0...sorted.length) {
+            if (sorted[i] != i) {
+                error('Missing declaration for signal $i.');
+            }
+        }
+    }
+
     function binaryExtend(value:Int):Int {
         final r = value % 8;
         final e = (r != 0) ? 8 - r : 0;
@@ -54,6 +65,8 @@ class CompilerVisitor implements Visitor {
     }
 
     public function visitFileNode(node:FileNode) {
+        verifySignalDeclarations(node.signalDeclarations);
+
         for (s in node.signalDeclarations) {
             s.accept(this);
         }
