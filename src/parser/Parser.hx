@@ -88,7 +88,10 @@ class Parser {
 
         expectToken(LBrace);
         nextToken();
-        while (currentToken.type != RBrace && currentToken.type != Eof) {
+        while (currentToken.type != RBrace) {
+            if (currentToken.type == Eof) {
+                error("Unexpected end of file");
+            }
             if (currentToken.type == Inline) {
                 nextToken();
                 expectToken(Ident);
@@ -142,7 +145,10 @@ class Parser {
 
         final assemblerConfig = ast.assemblerConfig;
 
-        while (currentToken.type != RBrace && currentToken.type != Eof) {
+        while (currentToken.type != RBrace) {
+            if (currentToken.type == Eof) {
+                error("Unexpected end of file");
+            }
             expectToken(Ident);
             final name = currentToken.literal;
             nextToken();
