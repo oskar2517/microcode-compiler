@@ -15,6 +15,12 @@
 14: ER1; // Puts data in register 1 on BUS
 15: LR1; // Loads data on BUS into register 1
 
+// Provide information used by the assembler
+assemblerConfig {
+    instructionWidth: 8; // Width of a full instruction in bits
+    opCodeWidth: 4; // Amount of bits used for the opcode
+}
+
 proc fetch {
     EPC, LM;
     ERAM;

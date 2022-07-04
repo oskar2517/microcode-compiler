@@ -1,5 +1,6 @@
 package ast.nodes;
 
+import compiler.AssemblerConfig;
 import visitor.Visitor;
 
 class FileNode extends Node {
@@ -7,6 +8,7 @@ class FileNode extends Node {
     public final signalDeclarations:Array<SignalDeclarationNode> = [];
     public final procDeclarations:Array<ProcDeclarationNode> = [];
     public final machineInsDeclarations:Array<MachineInsDeclarationNode> = [];
+    public final assemblerConfig = new AssemblerConfig();
 
     public function new() {
         super(File);

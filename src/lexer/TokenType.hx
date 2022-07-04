@@ -13,6 +13,7 @@ enum TokenType {
     Proc;
     Ins;
     Inline;
+    AssemblerConfig;
 
     Ident;
     Number;

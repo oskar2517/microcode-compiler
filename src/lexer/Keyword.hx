@@ -3,7 +3,8 @@ package lexer;
 private final keywords = [
     "proc" => TokenType.Proc, 
     "ins" => TokenType.Ins, 
-    "inline" => TokenType.Inline
+    "inline" => TokenType.Inline,
+    "assemblerConfig" => TokenType.AssemblerConfig
 ];
 
 function isKeyword(ident:String):Bool {

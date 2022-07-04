@@ -1,5 +1,6 @@
 package parser;
 
+import compiler.AssemblerConfig;
 import ast.nodes.InlineNode;
 import ast.nodes.Node;
 import ast.nodes.MachineInsDeclarationNode;
@@ -18,7 +19,8 @@ class Parser {
 
     final lexer:Lexer;
     public final ast = new FileNode();
-    private var currentToken:Token;
+    var currentToken:Token;
+    var assemblerConfigParsed = false;
 
     public function new(lexer:Lexer) {
         this.lexer = lexer;
@@ -127,11 +129,48 @@ class Parser {
         return new MachineInsDeclarationNode(name, instructionList);
     }
 
+    function parseAssemblerConfig():AssemblerConfig {
+        if (assemblerConfigParsed) {
+            error("Assembler config section duplicated.");
+        }
+        assemblerConfigParsed = true;
+        
+        expectToken(AssemblerConfig);
+        nextToken();
+        expectToken(LBrace);
+        nextToken();
+
+        final assemblerConfig = ast.assemblerConfig;
+
+        while (currentToken.type != RBrace && currentToken.type != Eof) {
+            expectToken(Ident);
+            final name = currentToken.literal;
+            nextToken();
+            expectToken(Colon);
+            nextToken();
+            final value = Std.parseInt(currentToken.literal);
+            if (value == null) {
+                error('Could not parse value of assembler configuration entry \'$name\'.');
+            }
+            nextToken();
+            expectToken(Semicolon);
+            nextToken();
+
+            assemblerConfig.set(name, value);
+        }
+
+        expectToken(RBrace);
+        nextToken();
+
+        return assemblerConfig;
+    }
+
     function parseGlobal() {
         switch (currentToken.type) {
             case Number: ast.addSignalDeclaration(parseSignalDeclaration());
             case Proc: ast.addProcDeclaration(parseProcDeclaration());
             case Ins: ast.addMachineInsDeclaration(parseMachineInsDeclaration());
+            case AssemblerConfig: parseAssemblerConfig();
             default: error('Unexpected token type ${currentToken.type}.');
         }
     }

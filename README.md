@@ -19,6 +19,11 @@ Microcode for an extremely rudimentary CPU.
 8: LR2; // Loads data on BUS into register 2
 9: LR1; // Loads data on BUS into register 1
 
+assemblerConfig {
+    instructionWidth: 16;
+    opCodeWidth: 4;
+}
+
 proc fetch {
     EPC, LM;
     ERAM;

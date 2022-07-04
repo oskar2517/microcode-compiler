@@ -102,3 +102,27 @@ ins mao {
     inline reset;
 }
 ```
+
+## AssemblerConfig
+The user may also provide additional information used by the assembler.
+```ebnf
+AssmblerConfig ::= "assemblerConfig", "{", { ConfigEntry }, "}"; 
+```
+
+Examples:
+```
+assemblerConfig {
+    instructionWidth: 16;
+}
+```
+
+### ConfigEntry
+Each entry maps a key to a value.
+```ebnf
+ConfigEntry ::= Identifier, ":", Number, ";";
+```
+
+Examples:
+```
+instructionWidth: 16;
+```
