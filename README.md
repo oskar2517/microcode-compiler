@@ -66,7 +66,7 @@ v3.0 hex words plain
 More examples can be found [here](examples). Alternatively, have a look at the syntax description which can be found [here](syntax.md).
 
 ## Download
-The latest release can be downloaded fom the [releases tab](https://github.com/oskar2517/microcode-compiler/releases). Alteratively, binaries compiled from the most reason commit can be downloaded from the [actions tab](https://github.com/oskar2517/microcode-compiler/actions). 
+The latest release can be downloaded fom the [releases tab](https://github.com/oskar2517/microcode-compiler/releases). Alternatively, binaries compiled from the most reason commit can be downloaded from the [actions tab](https://github.com/oskar2517/microcode-compiler/actions). 
 
 ## Usage
 ```
